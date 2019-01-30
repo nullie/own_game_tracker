@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -20,7 +24,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: "Flutter Demo Home Nullie's"),
     );
   }
 }
@@ -43,18 +47,45 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class Participant {
+  String name;
+  int score;
+  Participant(this.name, this.score);
+}
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+class _MyHomePageState extends State<MyHomePage> {
+  List<Participant> _participants;
+  int _round = 1;
+
+  _MyHomePageState() {
+    _participants = ['Егор', 'Богдан', 'Даша', 'Оля', 'Копетан', 'Флэш', 'Шлапак', 'Илья 2007'].map((name) => Participant(name, 0)).toList();
+  }
+
+  Widget longTapButton(Participant participant, int value) => GestureDetector(
+    onLongPress: () => setState(() {
+      Feedback.forLongPress(context);
+      participant.score -= value;
+    }),
+    child: RaisedButton(
+      onPressed: () { setState(() { participant.score += value; }); },
+      child: Text(value.toString())
+    )
+  );
+
+  List<Widget> buildParticipantColumn(Participant participant, List<int> values) {
+    var buttons = values.map(
+      (value) => Padding(
+        padding: EdgeInsets.all(3),
+        child: longTapButton(participant, value * _round)
+      )
+    ).toList();
+
+    var items = <Widget>[
+        Center(child: Text(participant.name, style: TextStyle(fontWeight: FontWeight.bold))),
+        Center(child: Text(participant.score.toString(), style: TextStyle(fontWeight: FontWeight.bold))),
+      ] + buttons;
+
+    return items.map((item) => Expanded(child: item)).toList();
   }
 
   @override
@@ -65,47 +96,37 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    const values = [100, 200, 300, 400, 500];
+
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          children: [1, 2, 3].map(
+            (round) => ListTile(
+              enabled: true,
+              selected: round == _round,
+              title: Text('Раунд $round'),
+              onTap: () {
+                setState(() {
+                  _round = round;
+                });
+                Navigator.pop(context);
+              },
+            )
+          ).toList(),
+      )
+      ),
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text('Какулятор Большой Игры — Раунд $_round'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: Row(
+        children: _participants.map((participant) => Expanded(
+          child: Column(
+            children: buildParticipantColumn(participant, values).toList()
+          )
+        )
+        ).toList()
+      )
     );
   }
 }

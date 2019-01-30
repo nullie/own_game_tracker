@@ -1,4 +1,4 @@
-package com.example.owngametracker;
+package name.nullie.owngametracker;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
