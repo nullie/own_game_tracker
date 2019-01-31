@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
       )
       ),
       appBar: AppBar(
-        title: Text('Какулятор Большой Игры — Раунд $_round'),
+        title: Text('Учёт — Раунд $_round'),
       ),
       body: Row(
         children: _participants.map((participant) => Expanded(
