@@ -12,18 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData.light(),
       home: MyHomePage(title: "Flutter Demo Home Nullie's"),
     );
   }
@@ -88,6 +77,53 @@ class _MyHomePageState extends State<MyHomePage> {
     return items.map((item) => Expanded(child: item)).toList();
   }
 
+  void _pushSettings() {
+    Navigator.of(context).push(
+      new MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return new Scaffold(
+            appBar: new AppBar(
+              title: const Text('Настройки')
+            ),
+            body: new Text('test'),
+          );
+        }
+      )
+    );
+  }
+
+  Future<void> _reset() async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Сброс'),
+          content: Text('Сбросить счёт?'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('ОТМЕНИТЬ'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('СБРОСИТЬ'),
+              onPressed: () {
+                setState(() {
+                  _participants.forEach((participant) {
+                    participant.score = 0;
+                  });
+                  Navigator.of(context).pop();
+                });
+              },
+            ),
+          ],
+        );
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -117,7 +153,13 @@ class _MyHomePageState extends State<MyHomePage> {
       )
       ),
       appBar: AppBar(
-        title: Text('Учёт — Раунд $_round'),
+        title: Text(
+          'Учёт — Раунд $_round',
+        ),
+        actions: <Widget>[
+          new IconButton(icon: const Icon(Icons.delete_sweep), onPressed: _reset),
+          new IconButton(icon: const Icon(Icons.settings), onPressed: _pushSettings),
+        ],
       ),
       body: Row(
         children: _participants.map((participant) => Expanded(
