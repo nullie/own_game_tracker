@@ -70,8 +70,18 @@ class _MyHomePageState extends State<MyHomePage> {
     ).toList();
 
     var items = <Widget>[
-        Center(child: Text(participant.name, style: TextStyle(fontWeight: FontWeight.bold))),
-        Center(child: Text(participant.score.toString(), style: TextStyle(fontWeight: FontWeight.bold))),
+      Center(
+        child: FlatButton(
+          onPressed: () => _editName(participant),
+          child: Text(
+            participant.name,
+            style: TextStyle(fontWeight: FontWeight.bold))
+          )
+        ),
+        Center(
+          child: Text(participant.score.toString(),
+          style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
       ] + buttons;
 
     return items.map((item) => Expanded(child: item)).toList();
@@ -89,6 +99,42 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         }
       )
+    );
+  }
+
+  Future<void> _editName(participant) async {
+    var textController = TextEditingController(text: participant.name);
+
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+
+        return AlertDialog(
+          // title: Text('Редактирование имени'),
+          content: TextField(
+            autofocus: true,
+            controller: textController,
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('ОТМЕНИТЬ'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('СОХРАНИТЬ'),
+              onPressed: () {
+                setState(() {
+                  participant.name = textController.text;
+                  Navigator.of(context).pop();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -135,6 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const values = [100, 200, 300, 400, 500];
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       drawer: Drawer(
         child: ListView(
           children: [1, 2, 3].map(
