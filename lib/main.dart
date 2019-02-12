@@ -87,19 +87,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return items.map((item) => Expanded(child: item)).toList();
   }
 
-  void _pushSettings() {
-    Navigator.of(context).push(
-      new MaterialPageRoute<void>(
+  Future<void> _pushSettings() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return new Scaffold(
-            appBar: new AppBar(
+          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+          return  Scaffold(
+            appBar: AppBar(
               title: const Text('Настройки')
             ),
-            body: new Text('test'),
+            body: TextField(keyboardType: TextInputType.number),
           );
         }
       )
     );
+    // TODO: find a way to restore previous orientation
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
   }
 
   Future<void> _editName(participant) async {
@@ -109,7 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-
         return AlertDialog(
           // title: Text('Редактирование имени'),
           content: TextField(
@@ -204,8 +206,8 @@ class _MyHomePageState extends State<MyHomePage> {
           'Учёт — Раунд $_round',
         ),
         actions: <Widget>[
-          new IconButton(icon: const Icon(Icons.delete_sweep), onPressed: _reset),
-          new IconButton(icon: const Icon(Icons.settings), onPressed: _pushSettings),
+          IconButton(icon: const Icon(Icons.delete_sweep), onPressed: _reset),
+          IconButton(icon: const Icon(Icons.settings), onPressed: _pushSettings),
         ],
       ),
       body: Row(
