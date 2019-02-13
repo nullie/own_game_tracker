@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'persistence.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
@@ -36,27 +37,32 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class Participant {
-  String name;
-  int score;
-  Participant(this.name, this.score);
-}
-
 class _MyHomePageState extends State<MyHomePage> {
-  List<Participant> _participants;
+  final ParticipantsStorage _storage = ParticipantsStorage();
+  List<Participant> _participants = [];
   int _round = 1;
 
   _MyHomePageState() {
-    _participants = ['Егор', 'Богдан', 'Даша', 'Оля', 'Копетан', 'Флэш', 'Шлапак', 'Илья 2007'].map((name) => Participant(name, 0)).toList();
+    _storage.load().then((participants) {
+      setState(() {
+        _participants = participants;
+      });
+    });
   }
 
   Widget longTapButton(Participant participant, int value) => GestureDetector(
-    onLongPress: () => setState(() {
+    onLongPress: () {
       Feedback.forLongPress(context);
-      participant.score -= value;
-    }),
+      setState(() {
+        participant.score -= value;
+        _storage.save(_participants);
+      });
+    },
     child: RaisedButton(
-      onPressed: () { setState(() { participant.score += value; }); },
+      onPressed: () => setState(() {
+        participant.score += value;
+        _storage.save(_participants);
+      }),
       child: Text(value.toString())
     )
   );
@@ -127,12 +133,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             FlatButton(
               child: Text('СОХРАНИТЬ'),
-              onPressed: () {
-                setState(() {
-                  participant.name = textController.text;
-                  Navigator.of(context).pop();
-                });
-              },
+              onPressed: () => setState(() {
+                participant.name = textController.text;
+                _storage.save(_participants);
+                Navigator.of(context).pop();
+              }),
             ),
           ],
         );
@@ -162,6 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _participants.forEach((participant) {
                     participant.score = 0;
                   });
+                  _storage.save(_participants);
                   Navigator.of(context).pop();
                 });
               },
@@ -174,12 +180,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     const values = [100, 200, 300, 400, 500];
 
     return Scaffold(
