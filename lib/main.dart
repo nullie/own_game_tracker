@@ -207,7 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         actions: <Widget>[
           IconButton(icon: const Icon(Icons.delete_sweep), onPressed: _reset),
-          IconButton(icon: const Icon(Icons.settings), onPressed: _pushSettings),
+          // IconButton(icon: const Icon(Icons.settings), onPressed: _pushSettings),
         ],
       ),
       body: Row(
